@@ -17,6 +17,37 @@ This project is **AI-assisted**: the code was written with Claude (Anthropic) un
 
 ![Xiegu G7250 Open Control simulator interface](docs/g7250-ui-preview.png)
 
+<details>
+<summary>Additional simulator screenshots</summary>
+
+These screenshots show additional simulator views. The project has not yet been tested on a real G7250.
+
+### Transmit and meter view
+
+![Transmit and meter view](docs/screenshots/01-main-tx.png)
+
+### MUF / SFI propagation globe
+
+![MUF / SFI propagation globe](docs/screenshots/02-muf-sfi.png)
+
+### WSPR view
+
+![WSPR view](docs/screenshots/03-wspr.png)
+
+### SWR sweep view
+
+![SWR sweep view](docs/screenshots/04-swr.png)
+
+### DevTools calibration view
+
+![DevTools calibration view](docs/screenshots/05-devtools.png)
+
+### CW decoder and sender view
+
+![CW decoder and sender view](docs/screenshots/06-cw.png)
+
+</details>
+
 ## Download
 
 Download the current community release from the [GitHub Release page](https://github.com/nathan86daniels-commits/xiegu-g7250-open-control/releases/tag/v0.1.0).
