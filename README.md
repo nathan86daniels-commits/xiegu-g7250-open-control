@@ -13,6 +13,11 @@ including a Raspberry Pi next to the radio. You use it from a browser on a big s
 
 This project is **AI-assisted**: the code was written with Claude (Anthropic) under human direction.
 
+## Download
+
+Download the current community release from the [GitHub Release page](https://github.com/nathan86daniels-commits/xiegu-g7250-open-control/releases/tag/v0.1.0).
+GitHub shows the download count for the attached ZIP under **Assets**.
+
 ## What's in it
 
 - **Scope**: 48 kS/s IQ shown as a ±24 kHz spectrum plus waterfall (WebGL2). It has the full-height "Ice glass"
