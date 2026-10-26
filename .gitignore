@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+recordings/
+data-sim/
+.wrangler/
+.claude/
+*.db
+*.iq16
+*.log
+.env
+.env.*

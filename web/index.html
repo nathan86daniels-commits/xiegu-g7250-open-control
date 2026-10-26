@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G7250 Open Control</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-tab="log">
+
+<!-- ================= MENU BAR ================= -->
+<header class="menubar">
+  <span class="brand">G7250 <em>Open Control</em></span>
+  <button class="menu" id="railCat">Radio</button>
+  <button class="menu" id="railSettings">Settings</button>
+  <span class="sp"></span>
+  <button class="fsBtn" id="railFull" aria-label="Full screen"><svg viewBox="0 0 16 16"><rect x="2.5" y="2.5" width="11" height="11" rx="1"/></svg></button>
+</header>
+
+<!-- ================= WORK AREA ================= -->
+<div class="work" id="work">
+
+  <!-- left column: Band, Mode, Memory, RX DSP / Filter -->
+  <aside class="colL">
+    <section class="card"><div class="legend">Band</div><div class="grid3" id="bands"></div></section>
+    <section class="card"><div class="legend">Mode</div><div class="grid3" id="tbMode"></div></section>
+    <section class="card"><div class="legend">Memory</div><div class="grid3" id="mems"></div></section>
+    <section class="card">
+      <div class="legend row">RX DSP / Filter<span class="sp"></span><span class="tag mini" id="dspFil">FIL 1</span></div>
+      <canvas id="dspc"></canvas>
+      <div class="grid5 filt" id="tbFilter"></div>
+      <div class="sl2"><div class="row"><span>SHIFT</span><span class="v" id="shiftV"></span></div><div class="trk" id="shiftS"></div></div>
+      <div class="grid3 cat" id="tbDsp"></div>
+      <div class="sl2 cat"><div class="row"><span>NR level</span><span class="v" id="nrV"></span></div><div class="trk" id="nrS"></div></div>
+      <div class="sl2 cat"><div class="row"><span>NB level</span><span class="v" id="nbV"></span></div><div class="trk" id="nbS"></div></div>
+    </section>
+  </aside>
+
+  <!-- centre: VFO-A, VFO-B, meter; button rows; scope -->
+  <main class="colC">
+    <div class="top">
+      <section class="card vfo vfoA">
+        <div class="row"><span class="tag" id="vfoTag">VFO-A</span><span class="sp"></span><span class="tag badge2" id="rxtxTag">RX</span></div>
+        <div class="freq" id="freq" aria-live="polite"></div>
+        <div class="row infoTags"><span class="tag acc" id="modeTag">USB</span><span class="tag"><em>RX BW</em><span id="rxBw">2.8k</span></span><span class="tag cat"><em>AGC</em><span id="agcTag">—</span></span></div>
+      </section>
+      <section class="card vfo vfoB cat">
+        <div class="row"><span class="tag" id="vfoBTag">VFO-B</span><span class="sp"></span><span class="tag dim" id="splitTag">SPLIT OFF</span></div>
+        <div class="freqB" id="freqB">—</div>
+        <div class="row infoTags"><span class="tag dim" id="vfoBInfo">—</span></div>
+      </section>
+      <section class="card meter"><canvas id="dial"></canvas><canvas id="meterBars" hidden></canvas></section>
+      <div class="vfoRows">
+        <div class="row">
+          <button class="btn sq freqStep" id="freqDn" aria-label="Tune frequency down one step" title="Tune down one STEP">−</button><button class="btn sq freqRound" id="freqRound" aria-label="Round frequency to the selected step" title="Round frequency to the selected STEP">0</button><button class="btn sq freqStep" id="freqUp" aria-label="Tune frequency up one step" title="Tune up one STEP">+</button>
+          <button class="btn" id="abBtn">A/B</button><button class="btn" id="aeqbBtn">A=B</button><button class="btn cat" id="splitBtn">SPLIT</button>
+          <span class="lbl">STEP</span><div class="sg" id="tbStep"></div>
+        </div>
+        <div class="row cat">
+          <button class="btn" id="ritBtn">RIT</button><button class="btn" id="xitBtn">XIT</button>
+          <button class="btn sq" id="ritDn">−</button><span class="ritVal" id="ritVal">0.00 kHz</span><button class="btn sq" id="ritUp">+</button>
+          <button class="btn" id="ritClr">CLR</button><button class="btn" id="lockBtn">LOCK</button><button class="btn" id="muteBtn">MUTE</button>
+        </div>
+      </div>
+    </div>
+    <section class="card pan">
+      <div class="panBody" id="panBody">
+        <div class="glWrap"><canvas id="scopeGl"></canvas><canvas id="ovl"></canvas></div>
+        <canvas id="ruler"></canvas>
+        <div class="cursor" id="cursor"></div>
+        <div class="noIq" id="noIq">Waiting for IQ from the radio…</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- right column: levels, front end, TX -->
+  <aside class="colR">
+   <div class="rScroll">
+    <section class="card">
+      <div class="sl2"><div class="row"><span>AF</span><span class="v" id="afV"></span></div><div class="trk" id="afS"></div></div>
+      <div class="sl2 cat"><div class="row"><span>PWR</span><span class="v" id="pwrV"></span></div><div class="trk pwr" id="pwrS"></div></div>
+      <div class="sl2 cat"><div class="row"><span>RF</span><span class="v" id="rfV"></span></div><div class="trk" id="rfS"></div></div>
+      <div class="sl2"><div class="row"><span>SQL</span><span class="v" id="sqlV"></span></div><div class="trk" id="sqlS"></div></div>
+      <div class="fe"><span class="lbl">PRE</span><div class="sg fill cat" id="fePre"></div></div>
+      <div class="fe"><span class="lbl">ATT</span><div class="sg fill cat" id="feAtt"></div></div>
+      <div class="fe"><span class="lbl">ANT</span><div class="sg fill cat" id="feAnt"></div></div>
+      <div class="fe"><span class="lbl">AGC</span><div class="sg fill cat" id="tbAgc"></div></div>
+    </section>
+    <section class="card cat">
+      <div class="sl2"><div class="row"><span>MIC</span><span class="v" id="micV"></span></div><div class="trk" id="micS"></div></div>
+      <div class="sl2"><div class="row"><button class="tog" id="compTog">COMP</button><span class="v" id="compV"></span></div><div class="trk" id="compS"></div></div>
+      <button class="btn wide" id="voxBtn">VOX<small id="voxSmall" hidden>OFF</small></button>
+    </section>
+   </div>
+    <section class="card cat">
+      <div class="row atuRow"><span class="lbl">ATU</span><span class="sp"></span><div class="sg" id="feAtu"></div></div>
+      <button class="btn big tune" id="tuneBtn">TUNE</button>
+      <button class="btn big ptt" id="pttBtn">PTT</button>
+      <div class="grid3" id="cqBtns"></div>
+    </section>
+  </aside>
+</div>
+
+<!-- ================= TABS (bottom panel) ================= -->
+<section class="dock" id="dock">
+  <div class="tabBar"><div class="tabs" id="tabBar"></div><span class="sp"></span><button class="btn sq" id="dockFold" title="Hide or show the panel">⌄</button></div>
+  <div class="dockBody" id="dockBody">
+
+    <div class="pane" data-pane="display">
+      <div class="dispGrid">
+        <span class="sect">SPECTRUM</span>
+        <label><span class="lbl">Span</span><div class="sg" id="zoomSg"></div></label>
+        <label><span class="lbl">Trace</span><div class="sg" id="avgSg"></div></label>
+        <label><span class="lbl">Level</span><span class="row"><button class="btn sq" id="lvlDown">−</button><span class="tag" id="lvlTag">LEVEL 0</span><button class="btn sq" id="lvlUp">+</button></span></label>
+        <label class="glassCtl"><span class="lbl row">Glass opacity<span class="sp"></span><span class="v" id="glassV">100%</span></span><input type="range" id="glassS" min="0" max="300" step="5"></label>
+        <label><span class="lbl">DX spots</span><button class="btn spotsTag on" id="spotsBtn">DX SPOTS</button></label>
+        <label><span class="lbl">IQ recording</span><span class="row"><button class="btn" id="recBtn">● REC IQ</button><a class="btn" id="recDl" href="/api/record/download" hidden>⤓ IQ</a></span></label>
+        <span class="sect">INTERFACE</span>
+        <label><span class="lbl">Meters</span><div class="sg" id="meterFace"></div></label>
+        <span class="lbl dim" id="panInfo"></span>
+      </div>
+    </div>
+
+    <div class="pane log" data-pane="log">
+      <div class="row logHead">
+        <input class="inp search" id="logSearch" placeholder="Search logbook" aria-label="Search logbook">
+        <label class="btn">↑ ADIF<input type="file" id="adifFile" accept=".adi,.adif,.txt" hidden></label>
+        <a class="btn" href="/api/log/export.adi">↓ ADIF</a>
+        <button class="btn" id="cabBtn">Cabrillo</button>
+        <button class="btn" id="contestBtn">Contest</button>
+      </div>
+      <form class="logEntry" id="logForm" autocomplete="off">
+        <input class="inp call" id="lgCall" placeholder="Callsign" aria-label="Callsign">
+        <input class="inp rst" id="lgS" value="59" aria-label="RST sent">
+        <input class="inp rst" id="lgR" value="59" aria-label="RST received">
+        <input class="inp name" id="lgName" placeholder="Name" aria-label="Name">
+        <input class="inp grid" id="lgGrid" placeholder="Grid" aria-label="Grid">
+        <input class="inp rst cst" id="lgStx" placeholder="STX" aria-label="Serial sent" hidden>
+        <input class="inp rst cst" id="lgSrx" placeholder="SRX" aria-label="Serial received" hidden>
+        <input class="inp cst" id="lgContest" placeholder="Contest" aria-label="Contest name" style="width:90px" hidden>
+        <input class="inp notes" id="lgNotes" placeholder="Notes" aria-label="Notes">
+        <button class="btn" type="submit">Log QSO</button>
+      </form>
+      <div class="tableWrap"><table id="logTable"></table></div>
+    </div>
+
+    <div class="pane dxPane" data-pane="dx">
+      <div class="row dxHead"><span class="lbl">DX cluster</span><span class="dim" id="dxInfo"></span><span class="sp"></span><button class="btn" id="dxBandBtn">THIS BAND</button></div>
+      <div class="tableWrap"><table class="dx" id="dxTable"></table></div>
+    </div>
+
+    <div class="pane recPane" data-pane="rec"></div>
+    <div class="pane swrPane" data-pane="swr"></div>
+    <div class="pane devPane" data-pane="dev"></div>
+    <div class="pane cwPane" data-pane="cw"></div>
+
+    <!-- AUDIO & TX: the audio set-up page; every change applies at once -->
+    <div class="pane txPane" data-pane="tx">
+      <section class="audCol">
+        <div class="sect">RECEIVE</div>
+        <label class="check"><input type="checkbox" id="aLan"> Listen over LAN (demodulated IQ)</label>
+        <label class="check"><input type="checkbox" id="aUsb"> Play the radio's USB audio on this PC</label>
+        <label class="field"><span class="lbl">Radio USB audio in</span><select id="aUsbIn"></select></label>
+      </section>
+      <section class="audCol">
+        <div class="sect">PC MICROPHONE</div>
+        <label class="check"><input type="checkbox" id="aTx"> Send the PC mic to the radio while PTT</label>
+        <label class="field"><span class="lbl">Microphone</span><select id="aMic"></select></label>
+        <label class="field"><span class="lbl">Radio USB audio out</span><select id="aUsbOut"></select></label>
+      </section>
+      <section class="audCol cat">
+        <div class="sect">RADIO</div>
+        <div class="sl2"><div class="row"><span>MIC gain</span><span class="v" id="txMicV"></span></div><div class="trk" id="txMicS"></div></div>
+        <div class="sl2"><div class="row"><button class="tog" id="txCompTog">COMP</button><span class="v" id="txCompV"></span></div><div class="trk" id="txCompS"></div></div>
+        <div class="field"><span class="lbl">VOX</span><div class="sg" id="voxSg"></div></div>
+      </section>
+      <p class="note audNote" id="aNote">Device names appear once the browser has microphone permission.</p>
+    </div>
+
+    <section class="globeP" id="globeP">
+      <div class="ph">
+        <div class="sg" id="gView"></div>
+        <span class="t"><i id="gInfo"></i></span>
+        <span class="sp"></span>
+        <div class="sg" id="gFilter"></div>
+        <select class="tag gBand" id="gBand" aria-label="Band"></select>
+        <button class="btn gExp" id="gExpand" title="Expand the globe (Esc to close)">⤢</button>
+      </div>
+      <div class="globeBody" id="globeBody">
+        <div class="gStats" id="gStats"></div>
+        <div class="gPath" id="gPath" hidden>
+          <div class="lbl">Current path</div>
+          <div class="pathCall"><span id="pcCall">—</span> <span class="pcCountry" id="pcCountry"></span></div>
+          <div class="small" id="pcDist"></div>
+          <div class="dim tiny" id="pcGrid"></div>
+          <div class="small pcTime" id="pcTime"></div>
+          <div class="pcBook" id="pcBook"></div>
+        </div>
+        <div class="gFoot" id="propLine"></div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- ================= STATUS BAR ================= -->
+<footer class="statusbar">
+  <button class="conn" id="connTag" title="CAT connection"><i id="connDot"></i><span id="connName">G7250</span><em id="connInfo">LAN only</em></button>
+  <button class="btn" id="connBtn">Connect</button>
+  <span class="simNote" id="simNote" hidden>Simulator — no radio connected</span>
+  <span class="sp"></span>
+  <span class="sbInfo">
+    <span>Grid <b id="sbGrid">—</b></span>
+    <span>VDD <b id="sbVdd">—</b></span>
+    <span>Hamlib <b id="sbHamlib">—</b></span>
+    <span>Scope <b id="sbScope">0</b> fps</span><span>UI <b id="sbUi">0</b> fps</span>
+    <b id="sbClock"></b>
+  </span>
+</footer>
+
+<!-- controls the layout does not show; kept so the wiring stays in one piece -->
+<div hidden>
+  <span id="bandTag"></span><span id="stepTag"></span><span id="ritTag"><span></span></span><span id="xitTag"></span><span id="iqTag"></span>
+  <div id="tbFront"></div><div id="sbFlags"></div><div id="nfSg"></div><span id="nfV"></span><span id="atuSwr"></span>
+  <button id="nrTog"></button><button id="nbTog"></button><button id="nfTog"></button>
+  <input id="cwText"><span id="micLevelDummy"></span>
+  <button id="tbMuf"></button><button id="tbWspr"></button><button id="tbRec"></button>
+  <button id="tbCwDec"></button><button id="tbCwSend"></button><button id="tbCwOps"></button>
+</div>
+
+<!-- ================= DIALOGS ================= -->
+<dialog id="catDlg" class="dlg">
+  <form method="dialog">
+    <h2>CAT connection <span class="cap">USB CI-V</span></h2>
+    <p class="note">Plug the G7250 in by USB and pick its CAT serial port. Address <b>Auto</b> tries the Xiegu CI-V addresses A4h, 88h and 70h.</p>
+    <label class="field"><span class="cap">Port</span><span class="row"><select id="catPort"></select><button type="button" class="btn small" id="catRefresh">Refresh</button></span></label>
+    <label class="field"><span class="cap">Baud</span><select id="catBaud"><option>115200</option><option>57600</option><option>38400</option><option selected>19200</option><option>9600</option><option>4800</option></select></label>
+    <label class="field"><span class="cap">CI-V address</span><select id="catAddr"><option value="auto">Auto</option><option>A4</option><option>88</option><option>70</option></select></label>
+    <p class="mono note" id="catMsg"></p>
+    <div class="row end"><button type="button" class="btn" id="catDisconnect">Disconnect</button><button type="button" class="btn on" id="catConnect">Connect</button><button class="btn" value="close">Close</button></div>
+  </form>
+</dialog>
+
+<dialog id="setDlg" class="dlg wide">
+  <form method="dialog" id="setForm">
+    <h2>Settings</h2>
+    <div class="cols">
+      <fieldset><legend class="cap">Station</legend>
+        <label class="field"><span class="cap">Callsign</span><input class="inp" id="sCall" autocomplete="off"></label>
+        <label class="field"><span class="cap">Grid locator</span><input class="inp" id="sGrid" autocomplete="off" placeholder="e.g. IO83"></label>
+        <label class="field"><span class="cap">Max TX time (s)</span><input class="inp" id="sMaxTx" type="number" min="10" max="900"></label>
+      </fieldset>
+      <fieldset><legend class="cap">DX cluster</legend>
+        <label class="check"><input type="checkbox" id="sClOn"> Connect (needs your callsign)</label>
+        <label class="field"><span class="cap">Host</span><input class="inp" id="sClHost"></label>
+        <label class="field"><span class="cap">Port</span><input class="inp" id="sClPort" type="number"></label>
+        <p class="mono note" id="sClStatus"></p>
+      </fieldset>
+      <fieldset><legend class="cap">CW messages (CQ 1–3)</legend>
+        <label class="field"><span class="cap">CQ 1</span><input class="inp" id="sCq0"></label>
+        <label class="field"><span class="cap">CQ 2</span><input class="inp" id="sCq1"></label>
+        <label class="field"><span class="cap">CQ 3</span><input class="inp" id="sCq2"></label>
+        <p class="note">{CALL} becomes your callsign. Sent with CI-V command 17h in CW mode.</p>
+      </fieldset>
+      <fieldset><legend class="cap">Callbook + QRZ logbook</legend>
+        <div class="row"><label class="field" style="flex:1"><span class="cap">QRZ username</span><input class="inp" id="sQrzUser" autocomplete="off"></label>
+          <label class="field" style="flex:1"><span class="cap">QRZ password</span><input class="inp" id="sQrzPass" type="password" autocomplete="off"></label></div>
+        <div class="row"><label class="field" style="flex:1"><span class="cap">HamQTH username</span><input class="inp" id="sHqUser" autocomplete="off"></label>
+          <label class="field" style="flex:1"><span class="cap">HamQTH password</span><input class="inp" id="sHqPass" type="password" autocomplete="off"></label></div>
+        <label class="field"><span class="cap">QRZ Logbook API key</span><input class="inp" id="sQrzKey" autocomplete="off" placeholder="XXXX-XXXX-XXXX-XXXX"></label>
+        <label class="check"><input type="checkbox" id="sQrzAuto"> Send each new QSO to my QRZ logbook</label>
+        <p class="note">Lookups use the QRZ XML service (a subscription gives full records); HamQTH is a free fallback. Logins stay on this PC.</p>
+      </fieldset>
+    </div>
+    <p class="mono note" id="hamlibNote"></p>
+    <div class="row end"><button class="btn" value="close">Cancel</button><button class="btn on" id="setSave" value="save">Save</button></div>
+  </form>
+</dialog>
+
+
+<!-- ================= FLOATING PANELS ================= -->
+<section class="P pop docked" id="cwDecPop" hidden style="left:360px;top:220px;width:620px;height:300px">
+  <div class="ph drag"><span class="dot" id="cwTone"></span><span class="t">CW decoder <i id="cwInfo"></i></span><span class="sp"></span>
+    <div class="sg sm" id="cwDecSg" title="Neural: our own CW model. Classic: the DSP decoder."></div>
+    <button class="tag mini" id="cwDelay" title="Neural copy delay: how much audio each letter waits for before it is printed. 1 s is the quickest; 10 s is the most accurate.">DELAY 1 s</button>
+    <button class="tag mini" id="cwDecTog" title="Decoder on/off">DECODER ON</button>
+    <button class="tag mini" id="cwClear">CLEAR</button>
+    <button class="tag mini popX" title="Close">✕</button></div>
+  <div class="cwBody">
+    <div class="cwRxText mono" id="cwRx" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="P pop docked" id="cwSendPop" hidden style="left:380px;top:540px;width:620px;height:230px">
+  <div class="ph drag"><span class="t">CW sender</span><span class="sp"></span>
+    <button class="btn small" id="cwEditMsgs">EDIT MESSAGES</button>
+    <button class="tag mini popX" title="Close">✕</button></div>
+  <div class="cwBody">
+    <div class="cwSend mono" id="cwSending" hidden></div>
+    <div class="cwMems" id="cwMems"></div>
+    <div class="row cwFree">
+      <input class="inp" id="cwFree" placeholder="Type a message · Enter sends · Esc stops · {CALL} = you, {DX} = log callsign" aria-label="CW message">
+      <button class="btn small on" id="cwSendBtn">SEND</button>
+      <button class="btn small" id="cwStopBtn">STOP</button>
+    </div>
+    <p class="cwNote mono" id="cwNote">F1–F6 send the memories · right-click a memory to edit it · sent by the radio's keyer (CI-V 17h)</p>
+  </div>
+</section>
+
+<section class="P pop docked" id="cwOpsPop" hidden style="left:1020px;top:540px;width:340px;height:130px">
+  <div class="ph drag"><span class="t">CW ops</span><span class="sp"></span>
+    <button class="tag mini popX" title="Close">✕</button></div>
+  <div class="cwBody">
+    <div class="sl cwSpeed"><span class="k">KEYER</span><div class="trk" id="cwWpmS"></div><span class="v" id="cwWpmV">—</span></div>
+    <p class="cwNote mono">The radio's own keyer sends the memories and typed text (CI-V 17h).</p>
+  </div>
+</section>
+
+<section class="P pop docked" id="recPop" hidden style="left:420px;top:240px;width:460px;height:300px">
+  <div class="ph drag"><span class="dot" id="recDot"></span><span class="t">REC <i id="recInfo"></i></span><span class="sp"></span>
+    <button class="tag mini popX" title="Close">✕</button></div>
+  <div class="recBody">
+    <div class="cap">Voice CQ messages</div>
+    <div class="recRows" id="recRows"></div>
+    <div class="cap">Receive audio</div>
+    <div class="row recRx"><button class="btn" id="recRxBtn">● REC RX</button><span class="mono dim" id="recRxInfo">Records what you hear (LAN or USB audio)</span></div>
+    <div class="recList" id="recList"></div>
+    <p class="cwNote mono" id="recNote">Voice messages play into the radio's USB audio while the app keys PTT: set the microphone and the radio's USB audio out in AUDIO & TX.</p>
+  </div>
+</section>
+
+<section class="P pop docked" id="wsprPop" hidden style="left:420px;top:180px;width:760px;height:520px">
+  <div class="ph drag"><span class="dot" id="wsprDot"></span><span class="t">WSPR <i id="wsprState">STOPPED</i></span><span class="sp"></span>
+    <button class="tag mini" id="wsprGlobe" title="Show on the globe">GLOBE</button>
+    <button class="tag mini popX" data-close="wsprPop" title="Close">✕</button></div>
+  <div class="wsprBody">
+    <div class="wsprCfg">
+      <label><span class="cap">Band</span><select id="wBand"></select></label>
+      <label><span class="cap">Dial</span><span class="mono amb" id="wDial">—</span></label>
+      <label><span class="cap">Report</span><select id="wDbm"></select></label>
+      <label><span class="cap">Power W</span><input class="inp" id="wWatts" type="number" min="1" max="100" step="1"></label>
+      <label><span class="cap">Audio Hz</span><input class="inp" id="wAudioHz" type="number" min="1410" max="1590" step="10"></label>
+      <label><span class="cap">TX 1 in</span><select id="wEvery"><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>8</option><option>10</option></select></label>
+      <label class="wide"><span class="cap">Audio out to radio</span><select id="wOut"></select></label>
+      <label class="check"><input type="checkbox" id="wUpload"> Upload spots to WSPRnet</label>
+      <label class="check"><input type="checkbox" id="wSwr"> Stop if SWR &gt; 3</label>
+    </div>
+    <div class="row wsprBtns">
+      <button class="btn" id="wRx">RECEIVE</button>
+      <button class="btn tx" id="wTx">RECEIVE + TRANSMIT</button>
+      <button class="btn" id="wStop">STOP</button>
+      <div class="wProg"><i id="wProgBar"></i><span class="mono" id="wProgText"></span></div>
+    </div>
+    <div class="tableWrap"><table id="wsprTable"></table></div>
+    <p class="cwNote mono" id="wNote"></p>
+  </div>
+</section>
+
+<dialog id="msgDlg" class="dlg wide">
+  <form method="dialog" id="msgForm">
+    <h2>CW messages</h2>
+    <div class="msgGrid" id="msgRows"></div>
+    <p class="note">{CALL} becomes your callsign; {DX} becomes the callsign in the log entry box. M1–M6 are the sender's buttons (F1–F6); CQ 1–3 are the buttons under PTT.</p>
+    <div class="row end"><button class="btn" value="close">Cancel</button><button class="btn on" value="save">Save</button></div>
+  </form>
+</dialog>
+
+<dialog id="memDlg" class="dlg">
+  <form method="dialog" id="memForm">
+    <h2>CW memory <span class="cap" id="memSlot">M1</span></h2>
+    <label class="field"><span class="cap">Label</span><input class="inp" id="memLabel" maxlength="8"></label>
+    <label class="field"><span class="cap">Message</span><input class="inp" id="memText"></label>
+    <p class="note">{CALL} becomes your callsign; {DX} becomes the callsign in the log entry box.</p>
+    <div class="row end"><button class="btn" value="close">Cancel</button><button class="btn on" value="save">Save</button></div>
+  </form>
+</dialog>
+
+<dialog id="qsoDlg" class="dlg wide">
+  <form method="dialog" id="qsoForm">
+    <h2>Edit QSO <span class="cap" id="qsoId"></span></h2>
+    <div class="qsoGrid">
+      <label class="field"><span class="cap">Call</span><input class="inp" id="qCall"></label>
+      <label class="field"><span class="cap">UTC</span><input class="inp" id="qUtc" placeholder="YYYY-MM-DDTHH:MM:SSZ"></label>
+      <label class="field"><span class="cap">Frequency kHz</span><input class="inp" id="qFreq"></label>
+      <label class="field"><span class="cap">Mode</span><input class="inp" id="qMode"></label>
+      <label class="field"><span class="cap">RST sent</span><input class="inp" id="qRstS"></label>
+      <label class="field"><span class="cap">RST rcvd</span><input class="inp" id="qRstR"></label>
+      <label class="field"><span class="cap">Name</span><input class="inp" id="qName"></label>
+      <label class="field"><span class="cap">QTH</span><input class="inp" id="qQth"></label>
+      <label class="field"><span class="cap">Grid</span><input class="inp" id="qGrid"></label>
+      <label class="field"><span class="cap">State / region</span><input class="inp" id="qRegion"></label>
+      <label class="field"><span class="cap">Contest</span><input class="inp" id="qContest"></label>
+      <label class="field"><span class="cap">Serial sent / rcvd</span><span class="row"><input class="inp" id="qStx"><input class="inp" id="qSrx"></span></label>
+      <label class="field span"><span class="cap">Notes</span><input class="inp" id="qNotes"></label>
+    </div>
+    <p class="mono note" id="qQrz"></p>
+    <div class="row end"><button type="button" class="btn" id="qLookup">QRZ lookup</button><button type="button" class="btn" id="qUpload">Send to QRZ logbook</button><span class="sp"></span><button class="btn" value="close">Cancel</button><button class="btn on" value="save">Save</button></div>
+  </form>
+</dialog>
+
+<dialog id="cabDlg" class="dlg">
+  <form method="dialog" id="cabForm">
+    <h2>Cabrillo export <span class="cap">3.0</span></h2>
+    <label class="field"><span class="cap">QSOs</span><select id="cabWhich"></select></label>
+    <label class="field"><span class="cap">Contest ID (e.g. CQ-WW-SSB, ARRL-DX-CW)</span><input class="inp" id="cabId"></label>
+    <div class="row"><label class="field" style="flex:1"><span class="cap">Operator</span><select id="cabOp"><option>SINGLE-OP</option><option>MULTI-OP</option><option>CHECKLOG</option></select></label>
+      <label class="field" style="flex:1"><span class="cap">Power</span><select id="cabPwr"><option>LOW</option><option>HIGH</option><option>QRP</option></select></label></div>
+    <div class="row"><label class="field" style="flex:1"><span class="cap">Band</span><select id="cabBand"><option>ALL</option><option>160M</option><option>80M</option><option>40M</option><option>20M</option><option>15M</option><option>10M</option><option>6M</option></select></label>
+      <label class="field" style="flex:1"><span class="cap">Mode</span><select id="cabMode"><option>MIXED</option><option>SSB</option><option>CW</option><option>DIGI</option><option>RTTY</option></select></label></div>
+    <label class="field"><span class="cap">Name / email (optional)</span><span class="row"><input class="inp" id="cabName" placeholder="Name"><input class="inp" id="cabEmail" placeholder="Email"></span></label>
+    <div class="row end"><button class="btn" value="close">Cancel</button><button class="btn on" value="save">Export .cbr</button></div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="lib/d3.min.js"></script>
+<script src="lib/topojson-client.min.js"></script>
+<script src="lib/land.js"></script>
+<script src="js/core.js"></script>
+<script src="js/controls.js"></script>
+<script src="js/scopegl.js"></script>
+<script src="js/scope.js"></script>
+<script src="js/meters.js"></script>
+<script src="js/globe.js"></script>
+<script src="js/logbook.js"></script>
+<script src="js/globeviews.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/cwwspr.js"></script>
+<script src="js/main.js"></script>
+<script src="js/rec.js"></script>
+<script src="js/tabs.js"></script>
+<script src="js/devtools.js"></script>
+<script src="js/swr.js"></script>
+</body>
+</html>
