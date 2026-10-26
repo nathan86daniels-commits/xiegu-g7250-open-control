@@ -128,6 +128,8 @@ transmitter, and Settings holds your QRZ login.
 
 ## Things to check on a real G7250
 
+Before connecting hardware, read the [real-radio calibration and validation guide](REAL-RADIO-CALIBRATION.md).
+
 - **I/Q orientation**: a signal above the dial should appear to the right. If it doesn't, set `G7250_SWAP_IQ=1`.
 - **CW tuning**: CW is received with the dial on the signal's carrier and the tone at the pitch. Compare with the
   radio's own display.
