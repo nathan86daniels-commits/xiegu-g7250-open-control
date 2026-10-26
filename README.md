@@ -1,4 +1,4 @@
-# G7250 Open Control
+# Xiegu G7250 Open Control
 
 > **Experimental hardware warning:** This project has not yet been tested on a real G7250. It currently runs end to end against the built-in simulator. Do not transmit with a real radio until LAN IQ, CAT, PTT safety, meter scaling, and fail-safe behavior have been verified on actual hardware. Use appropriate RF safety precautions and a suitable dummy load when testing transmission.
 
