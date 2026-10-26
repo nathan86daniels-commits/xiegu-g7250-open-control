@@ -78,6 +78,34 @@ Open <http://localhost:8000>. Then:
 
 On Windows (cmd), use `set G7250_SIMULATOR=1` first.
 
+### Run the simulator
+
+The built-in simulator needs no G7250 hardware. From the project directory, install the requirements first, then use one of these:
+
+**Linux or macOS**
+
+```bash
+G7250_SIMULATOR=1 G7250_DATA=data-sim python -m uvicorn server:app --host 127.0.0.1 --port 8000
+```
+
+**Windows Command Prompt**
+
+```bat
+set G7250_SIMULATOR=1
+set G7250_DATA=data-sim
+python -m uvicorn server:app --host 127.0.0.1 --port 8000
+```
+
+**Windows PowerShell**
+
+```powershell
+$env:G7250_SIMULATOR = "1"
+$env:G7250_DATA = "data-sim"
+python -m uvicorn server:app --host 127.0.0.1 --port 8000
+```
+
+Then open <http://127.0.0.1:8000>. The simulator creates its local settings and logbook folder automatically; no radio, CAT cable, or credentials are required.
+
 | Setting | Default | Meaning |
 |---|---|---|
 | `G7250_RADIO_IP` | `192.168.3.199` | Radio address |
