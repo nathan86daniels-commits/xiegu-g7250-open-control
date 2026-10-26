@@ -15,7 +15,7 @@ This project is **AI-assisted**: the code was written with Claude (Anthropic) un
 
 ## UI preview
 
-![Xiegu G7250 Open Control simulator interface](docs/g7250-ui-preview.png)
+![Xiegu G7250 Open Control simulator interface with bar meters](docs/screenshots/01-main-tx.png)
 
 <details>
 <summary>Additional simulator screenshots</summary>
