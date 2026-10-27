@@ -220,6 +220,7 @@ web/                    browser UI (plain JS, no build step)
 
 ## Data and credits
 
+- Protocol reverse-engineering and early LAN bridge work: **Steve (Temporarily Offline / TOAD / KM9G)**.
 - Country data: **AD1C** cty.dat.
 - Neural CW model: our own (e4), included under the same terms as this project.
 - MUF map, foF2 and ionosondes: **KC2G** (prop.kc2g.com), using GIRO data.
